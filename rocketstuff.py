@@ -3,16 +3,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+global g, m_convert, theta
+g = 11
+m_convert = 0.9144
+theta = 0.785398
+
 def goalLine(): #g = 11
     while True:
         try:
             data = float(input('Give launch location (yd line): '))
-            data_m = data*0.9144
+            data_m = data*m_convert
             #print(data_m)
-            v = math.sqrt((data_m*11)/(math.sin(2*0.785398))) #launch angle is always 50
+            v = math.sqrt((data_m*g)/(math.sin(2*theta))) #launch angle is always 45 (45 degrees = 0.785398 radians)
             #print(v)
             p = math.exp((v+45.18761)/15.77984)
-            animate_launch(v, 0.785398, data_m, 0, p)
+            animate_launch(v, theta, data_m, 0, p)
             break
         except:
             print('Incorrect input')
@@ -23,10 +28,10 @@ def fieldGoal(): #20 ft = 6.069 m
         try:
             data = input('Give launch angle and launch location (yd line): ').split()
             angle = float(data[0])*(math.pi/180)
-            x = (float(data[1])*0.9144)+9.144
+            x = (float(data[1])*m_convert)+9.144
             #print(x)
             try:
-                v = math.sqrt((11*(x**2))/((2*(math.cos(angle)**2))*((x*math.tan(angle))-6.069)))
+                v = math.sqrt((g*(x**2))/((2*(math.cos(angle)**2))*((x*math.tan(angle))-6.069)))
                 #print(v)
                 p = math.exp((v+45.18761)/15.77984)
                 animate_launch(v, angle, x, 6.069, p)
