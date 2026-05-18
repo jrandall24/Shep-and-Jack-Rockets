@@ -16,7 +16,7 @@ def goalLine(): #g = 11
             break
         except:
             print('Incorrect input')
-            continue
+            break
 
 def fieldGoal(): #20 ft = 6.069 m
     while True:
@@ -32,10 +32,11 @@ def fieldGoal(): #20 ft = 6.069 m
                 animate_launch(v, angle, x, 6.069, p)
                 break
             except:
-                return 'Impossible for sufficient height to be obtained given the inputted angle and location'
+                print('Impossible for sufficient height to be obtained given the inputted angle and location')
+                break
         except:
             print('Incorrect input')
-            continue
+            break
 
 def animate_launch(v0, angle_rad, target_x, target_y, p):
     g = 11 
