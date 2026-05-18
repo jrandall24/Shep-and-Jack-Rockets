@@ -1,22 +1,74 @@
 import math
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-def goalLine(): # g=11
-    data = int(input('Give launch location: '))
-    data_m = data*0.9144
-    v = math.sqrt((data_m*11)/(math.sin(2*0.872665))) #launch angle is always 50
-    p = math.exp((v+45.18761)/15.77984)
-    return p, 50
+def goalLine(): #g = 11
+    while True:
+        try:
+            data = float(input('Give launch location (yd line): '))
+            data_m = data*0.9144
+            #print(data_m)
+            v = math.sqrt((data_m*11)/(math.sin(2*0.785398))) #launch angle is always 50
+            #print(v)
+            p = math.exp((v+45.18761)/15.77984)
+            animate_launch(v, 0.785398, data_m, 0, p)
+            break
+        except:
+            print('Incorrect input')
+            continue
 
-def fieldGoal(): # 20 ft = 6.069 m
-    data = input('Give launch angle and launch location: ').split()
-    angle = int(data[0])*(math.pi/180)
-    x = (int(data[1])*0.9144)+9.144
-    try:
-        v = math.sqrt((11*(x**2))/((2*(math.cos(angle)**2))*((x*math.tan(angle))-6.069)))
-        p = math.exp((v+45.18761)/15.77984)
-        return p
-    except:
-        return 'unavailable'
+def fieldGoal(): #20 ft = 6.069 m
+    while True:
+        try:
+            data = input('Give launch angle and launch location (yd line): ').split()
+            angle = float(data[0])*(math.pi/180)
+            x = (float(data[1])*0.9144)+9.144
+            #print(x)
+            try:
+                v = math.sqrt((11*(x**2))/((2*(math.cos(angle)**2))*((x*math.tan(angle))-6.069)))
+                #print(v)
+                p = math.exp((v+45.18761)/15.77984)
+                animate_launch(v, angle, x, 6.069, p)
+                break
+            except:
+                return 'Impossible for sufficient height to be obtained given the inputted angle and location'
+        except:
+            print('Incorrect input')
+            continue
+
+def animate_launch(v0, angle_rad, target_x, target_y, p):
+    g = 11 
+    #total flight time
+    t_total = target_x / (v0 * math.cos(angle_rad))
+    t_points = np.linspace(0, t_total, 100)
+    #path coordinates
+    x_path = v0 * np.cos(angle_rad) * t_points
+    y_path = v0 * np.sin(angle_rad) * t_points - 0.5 * g * t_points**2
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [], 'black', lw=2)  # trajectory
+    rocket, = ax.plot([], [], 'ro')         # moving rocket 
+    x_display = ax.text(0.02, 0.95, '', transform=ax.transAxes, 
+                        fontsize=10, fontweight='bold',
+                        verticalalignment='top',
+                        bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+    #visuals
+    ax.axhline(target_y, color='r', linestyle='--', label='Goal Height')
+    ax.set_xlim(0, target_x + 5)
+    ax.set_ylim(0, max(y_path) + 2)
+    ax.set_title(f"Rocket Trajectory\nRequired Pressure: {p:.2f} PSI", 
+                 fontsize=12, color='darkblue')
+    ax.legend()
+
+    def update(frame):
+        line.set_data(x_path[:frame], y_path[:frame])
+        rocket.set_data([x_path[frame]], [y_path[frame]])
+        current_x = x_path[frame]
+        x_display.set_text(f"{current_x:.2f} m")
+        return line, rocket, x_display
+    ani = FuncAnimation(fig, update, frames=len(t_points), interval=20, repeat=False)
+    plt.show()
 
 def main():
     while True:
@@ -26,9 +78,9 @@ def main():
 3. End
 Choose your action: ''')
         if action == '1':
-            print(f'Pressure: {goalLine()[0]} psi Angle: 50 degrees')
+            goalLine()
         elif action == '2':
-            print(f'Pressure: {fieldGoal()} psi')
+            fieldGoal()
         elif action == '3':
             print('See ya')
             break
